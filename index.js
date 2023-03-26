@@ -95,7 +95,7 @@ const search = (url, disableOrder = false, allowSwap = false, customParams = {})
     return new Promise(async (resolve, reject) => {
 
         const { validURL, domain, querystring } = parseVintedURL(url, disableOrder ?? false, allowSwap ?? false, customParams);
-        
+
         if (!validURL) {
             console.log(`[!] ${url} is not valid in search!`);
             return resolve([]);
@@ -135,12 +135,17 @@ const search = (url, disableOrder = false, allowSwap = false, customParams = {})
             controller.abort();
             reject('Can not fetch search API');
         });
-    
+
     });
+}
+
+function clearCookies() {
+    cookies.clear();
 }
 
 module.exports = {
     fetchCookie,
     parseVintedURL,
+    clearCookies,
     search
 }

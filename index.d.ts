@@ -5,6 +5,7 @@ declare module 'vinted-api' {
     }
 
     export function fetchCookie (): Promise<string>;
+    export function clearCookie (): void;
     export function parseVintedURL (url: string): {validURL: boolean, domain?: RegExpMatchArray | null, querystring?: string};
     export function search (url: string, disableOrder?: boolean, allowSwap?: boolean, customParams?: Record<string, string|number>): Promise<VintedSearchResult>;
 
