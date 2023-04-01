@@ -8,7 +8,9 @@ const cookies = new Map();
 /**
  * Fetches a new public cookie from Vinted.fr
  */
-const fetchCookie = (domain = 'fr') => {
+const fetchCookie = (domain) => {
+   if (!domain) domain = 'be';
+
    return new Promise((resolve, reject) => {
       const controller = new AbortController();
       const agent = process.env.VINTED_API_HTTPS_PROXY ? new HttpsProxyAgent(process.env.VINTED_API_HTTPS_PROXY) : undefined;
@@ -92,7 +94,18 @@ const parseVintedURL = (url, disableOrder, allowSwap, customParams = {}) => {
  */
 
 // Fetch brands on vinted
-const fetchBrands = async (domain = 'fr', keyword) => {
+const fetchBrands = async (keyword, domain) => {
+   if (!domain) domain = 'be';
+
+   return await fetchVinted(`https://vinted.${domain}/api/v2/brands?keyword=${keyword}`, domain).then((data) => {
+      return data;
+   }).catch((err) => {
+      throw err;
+   })
+}
+
+const fetchVinted = async (url, domain) => {
+   if (!domain) domain = 'be';
    const c = cookies.get(domain) ?? process.env[`VINTED_API_${domain.toUpperCase()}_COOKIE`];
    if (c) console.log(`[*] Using cached cookie for ${domain}`);
    if (!c) {
@@ -103,7 +116,7 @@ const fetchBrands = async (domain = 'fr', keyword) => {
 
    return new Promise((resolve, reject) => {
       const controller = new AbortController();
-      fetch(`https://www.vinted.${domain}/api/v2/brands?keyword=${keyword}`, {
+      fetch(url, {
          signal: controller.signal,
          headers: {
             cookie: '_vinted_fr_session=' + c,
@@ -121,14 +134,13 @@ const fetchBrands = async (domain = 'fr', keyword) => {
          });
       }).catch(err => {
          controller.abort();
-         reject('Can not fetch brands API ' + err);
+         reject('Can not fetch Vinted API ' + err);
       });
    });
 }
 
 const search = (url, disableOrder = false, allowSwap = false, customParams = {}) => {
    return new Promise(async (resolve, reject) => {
-
       const {
          validURL,
          domain,
@@ -140,41 +152,17 @@ const search = (url, disableOrder = false, allowSwap = false, customParams = {})
          return resolve([]);
       }
 
-      const c = cookies.get(domain) ?? process.env[`VINTED_API_${domain.toUpperCase()}_COOKIE`];
-      if (c) console.log(`[*] Using cached cookie for ${domain}`);
-      if (!c) {
-         console.log(`[*] Fetching cookie for ${domain}`);
-         await fetchCookie(domain).catch(() => {
-         });
-      }
-
-      const controller = new AbortController();
-      fetch(`https://www.vinted.be/api/v2/catalog/items?${querystring}`, {
-         signal: controller.signal,
-         //agent: process.env.VINTED_API_HTTPS_PROXY ? new HttpsProxyAgent(process.env.VINTED_API_HTTPS_PROXY) : undefined,
-         headers: {
-            cookie: '_vinted_fr_session=' + c,
-            'user-agent': new UserAgent().toString(),
-            accept: 'application/json, text/plain, */*'
-         }
-      }).then((res) => {
-         res.text().then((text) => {
-            controller.abort();
-            try {
-               resolve(JSON.parse(text));
-            } catch (e) {
-               reject(text);
-            }
-         });
-      }).catch((e) => {
+      fetchVinted(`https://www.vinted.be/api/v2/catalog/items?${querystring}`, domain)
+         .then((data) => {
+            resolve(data);
+         })
+         .catch((e) => {
          try {
             if (JSON.parse(e).message === `Token d'authentification invalide`) {
                fetchCookie();
             }
-         } catch {
-         }
-         controller.abort();
-         reject('Can not fetch search API');
+         } catch {}
+         reject('Can not fetch search API ' + e);
       });
 
    });
