@@ -26,7 +26,6 @@ const fetchCookie = (domain = 'fr') => {
             controller.abort();
             const c = cookie.parse(sessionCookie)['secure, _vinted_fr_session'];
             if (c) {
-                console.log(c);
                 cookies.set(domain, c);
             }
             resolve();
@@ -91,6 +90,32 @@ const parseVintedURL = (url, disableOrder, allowSwap, customParams = {}) => {
 /**
  * Searches something on Vinted
  */
+
+// Fetch brands on vinted
+const fetchBrands = async (domain = 'fr', keyword) => {
+      return new Promise((resolve, reject) => {
+         const controller = new AbortController();
+         fetch(`https://www.vinted.${domain}/api/v2/brands?keyword=${keyword}`, {
+               signal: controller.signal,
+               headers: {
+                  'user-agent': new UserAgent().toString()
+               }
+         }).then((res) => {
+               res.text().then((text) => {
+                  controller.abort();
+                  try {
+                     resolve(JSON.parse(text));
+                  } catch (e) {
+                     reject(text);
+                  }
+               });
+         }).catch(() => {
+               controller.abort();
+               reject('Can not fetch brands API');
+         });
+      });
+}
+
 const search = (url, disableOrder = false, allowSwap = false, customParams = {}) => {
     return new Promise(async (resolve, reject) => {
 
@@ -147,5 +172,6 @@ module.exports = {
     fetchCookie,
     parseVintedURL,
     clearCookies,
+    fetchBrands,
     search
 }
