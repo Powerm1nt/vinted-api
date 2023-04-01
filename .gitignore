@@ -1,3 +1,15 @@
 # Node
 node_modules
 package-lock.json
+
+# Project specific files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.idea
+.vscode
+*.iml
+*.ipr
+*.iws
