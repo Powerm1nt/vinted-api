@@ -9,7 +9,7 @@ const cookies = new Map();
  * Fetches a new public cookie from Vinted.fr
  */
 const fetchCookie = (domain) => {
-   if (!domain) domain = 'be';
+   if (!domain) domain = 'fr';
 
    return new Promise((resolve, reject) => {
       const controller = new AbortController();
@@ -95,7 +95,7 @@ const parseVintedURL = (url, disableOrder, allowSwap, customParams = {}) => {
 
 // Fetch brands on vinted
 const fetchBrands = async (keyword, domain) => {
-   if (!domain) domain = 'be';
+   if (!domain) domain = 'fr';
 
    return await fetchVinted(`https://vinted.${domain}/api/v2/brands?keyword=${keyword}`, domain).then((data) => {
       return data;
@@ -105,7 +105,7 @@ const fetchBrands = async (keyword, domain) => {
 }
 
 const fetchVinted = async (url, domain) => {
-   if (!domain) domain = 'be';
+   if (!domain) domain = 'fr';
    const c = cookies.get(domain) ?? process.env[`VINTED_API_${domain.toUpperCase()}_COOKIE`];
    if (c) console.log(`[*] Using cached cookie for ${domain}`);
    if (!c) {
