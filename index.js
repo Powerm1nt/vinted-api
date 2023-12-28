@@ -26,7 +26,8 @@ const fetchCookie = (domain) => {
       }).then((res) => {
          const sessionCookie = res.headers.get('set-cookie');
          controller.abort();
-         const c = cookie.parse(sessionCookie)['_vinted_fr_session'];
+         const c = cookie.parse(sessionCookie).SameSite.split('Lax, _vinted_fr_session=')[1];
+         console.log(c)
          if (c) {
             cookies.set(domain, c);
          }
