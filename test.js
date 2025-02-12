@@ -1,8 +1,8 @@
-const { fetchCookie, search } = require("./index");
+import { fetchCookie, search } from "./index.js";
 
-
-fetchCookie().then(res => {
-    search('https://www.vinted.fr/vetements?search_text=converse').then(res => {
-        console.log(res)
-    })
-})
+await fetchCookie().then((res) => {
+  console.log(res);
+  search("https://www.vinted.fr/vetements?search_text=converse").then((res) => {
+    console.log(res);
+  });
+});
